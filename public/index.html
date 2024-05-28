@@ -31,15 +31,26 @@
       input {
         margin-top: 10px;
       }
-      /* #fileInput {
-        padding-bottom: 30px;
-      } */
+      #fileInput {
+        padding-bottom: 40px;
+      }
+      #minWidthInput {
+        padding-bottom: 10px;
+      }
     </style>
   </head>
   <body>
     <div id="drop-area" class="bg-light">
       <h3>Drag and drop image files here</h3>
-      <input type="file" id="fileInput" multiple class="form-control mt-3" />
+      <input type="file" id="fileInput" multiple class="form-control" />
+      <hr />
+      <input
+        type="number"
+        id="minWidthInput"
+        placeholder="Enter minimum width"
+        class="form-control"
+      />
+      <hr />
       <input
         type="text"
         id="directoryInput"
@@ -56,6 +67,7 @@
 
     <script>
       const fileInput = document.getElementById("fileInput");
+      const minWidthInput = document.getElementById("minWidthInput");
       const directoryInput = document.getElementById("directoryInput");
       const uploadButton = document.getElementById("uploadButton");
       const dropArea = document.getElementById("drop-area");
@@ -74,24 +86,30 @@
         dropArea.classList.remove("bg-info");
         const files = event.dataTransfer.files;
         const directory = directoryInput.value;
-        if (files.length > 0 && directory) {
-          handleFiles(files, directory);
+        const minWidth = minWidthInput.value;
+        if (files.length > 0 && directory && minWidth) {
+          handleFiles(files, directory, parseInt(minWidth, 10));
         } else {
-          alert("Please enter a target directory.");
+          alert(
+            "Please select files, enter a target directory, and specify the minimum width."
+          );
         }
       });
 
       uploadButton.addEventListener("click", () => {
         const files = fileInput.files;
         const directory = directoryInput.value;
-        if (files.length > 0 && directory) {
-          handleFiles(files, directory);
+        const minWidth = minWidthInput.value;
+        if (files.length > 0 && directory && minWidth) {
+          handleFiles(files, directory, parseInt(minWidth, 10));
         } else {
-          alert("Please select files and enter a target directory.");
+          alert(
+            "Please select files, enter a target directory, and specify the minimum width."
+          );
         }
       });
 
-      async function handleFiles(files, directory) {
+      async function handleFiles(files, directory, minWidth) {
         for (let file of files) {
           if (!file.type.startsWith("image/")) {
             alert("Please select image files only.");
@@ -107,9 +125,9 @@
             let width = img.width;
             let height = img.height;
 
-            if (width > 1200) {
-              height = height * (1200 / width);
-              width = 1200;
+            if (width > minWidth) {
+              height = height * (minWidth / width);
+              width = minWidth;
             }
 
             canvas.width = width;
@@ -121,6 +139,7 @@
                 const formData = new FormData();
                 formData.append("image", blob, file.name);
                 formData.append("directory", directory);
+                formData.append("minWidth", minWidth);
 
                 await fetch("/upload", {
                   method: "POST",

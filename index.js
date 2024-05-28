@@ -9,9 +9,11 @@ const upload = multer({ dest: "uploads/" });
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 app.post("/upload", upload.single("image"), async (req, res) => {
   const directory = req.body.directory;
+  const minWidth = parseInt(req.body.minWidth, 10);
   const originalName = path.parse(req.file.originalname).name;
   const outputFileName = `${originalName}.webp`;
 
@@ -23,7 +25,7 @@ app.post("/upload", upload.single("image"), async (req, res) => {
     const outputFilePath = path.join(directory, outputFileName);
 
     await sharp(req.file.path)
-      .resize({ width: 1200, withoutEnlargement: true })
+      .resize({ width: minWidth, withoutEnlargement: true })
       .toFormat("webp")
       .toFile(outputFilePath);
 
