@@ -31,17 +31,15 @@
       input {
         margin-top: 10px;
       }
-
-      #fileInput {
+      /* #fileInput {
         padding-bottom: 30px;
-      }
+      } */
     </style>
   </head>
   <body>
     <div id="drop-area" class="bg-light">
       <h3>Drag and drop image files here</h3>
-      <input type="file" id="fileInput" multiple class="form-control" />
-      <hr />
+      <input type="file" id="fileInput" multiple class="form-control mt-3" />
       <input
         type="text"
         id="directoryInput"
@@ -75,8 +73,11 @@
         event.preventDefault();
         dropArea.classList.remove("bg-info");
         const files = event.dataTransfer.files;
-        if (files.length > 0) {
-          handleFiles(files);
+        const directory = directoryInput.value;
+        if (files.length > 0 && directory) {
+          handleFiles(files, directory);
+        } else {
+          alert("Please enter a target directory.");
         }
       });
 
